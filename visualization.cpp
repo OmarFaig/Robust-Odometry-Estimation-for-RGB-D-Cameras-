@@ -1,44 +1,47 @@
 #include "visualization.h"
+#include <limits>
+#include <iostream>
+
+
 #include <pangolin/display/display.h>
 #include <pangolin/display/view.h>
 #include <pangolin/handler/handler.h>
 #include <pangolin/gl/gldraw.h>
+#include <pangolin/pangolin.h>
 
 int sayHello(){
     std::cout<<"HELO vis";
     return 1;
 }
 
-int TT(  )
-{
-std::cout << "TT";
-    pangolin::CreateWindowAndBind("Main",640,480);
+int TT(){
+    pangolin::CreateWindowAndBind("DefSLAM: Map Viewer", 175 + 640, 480);
+
+    // 3D Mouse handler requires depth testing to be enabled
     glEnable(GL_DEPTH_TEST);
 
-    // Define Projection and initial ModelView matrix
-    pangolin::OpenGlRenderState s_cam(
-        pangolin::ProjectionMatrix(640,480,420,420,320,240,0.2,100),
-        pangolin::ModelViewLookAt(-2,2,-2, 0,0,0, pangolin::AxisY)
-    );
+    // Issue specific OpenGl we might need
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Create Interactive View in window
-    pangolin::Handler3D handler(s_cam);
-    pangolin::View& d_cam = pangolin::CreateDisplay()
-            .SetBounds(0.0, 1.0, 0.0, 1.0, -640.0f/480.0f)
-            .SetHandler(&handler);
+    pangolin::CreatePanel("menu").SetBounds(0.0, 1.0, 0.0,
+                                            pangolin::Attach::Pix(175));
+    pangolin::Var<bool> menuFollowCamera("menu.Follow Camera", true, true);
+    pangolin::Var<bool> menuShowPoints("menu.Show Points", true, true);
+    pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames", true, true);
+    pangolin::Var<bool> menuShowGraph("menu.Show Graph", true, true);
+    pangolin::Var<bool> menuShowError("menu.Show Error", true, true);
+    pangolin::Var<bool> menuAutoPlay("menu.Autoplay", true, true);
 
-    while( !pangolin::ShouldQuit() )
-    {
-        // Clear screen and activate view to render into
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        d_cam.Activate(s_cam);
-
-        // Render OpenGL Cube
-        pangolin::glDrawColouredCube();
-
-        // Swap frames and Process Events
-        pangolin::FinishFrame();
-    }
-
+    // Add named OpenGL viewport to window and provide 3D Handler
+    // Output 3D
+   // pangolin::View &d_cam1 =
+   //     pangolin::CreateDisplay()
+   //         .SetAspect(640.0f / 480.0f)
+   //         .SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1, -1024.0f / 768.0f)
+   //         .SetHandler(new pangolin::Handler3D(s_cam));
+//
+    pangolin::OpenGlMatrix Twc;
+    Twc.SetIdentity();
     return 0;
-}
+    }
