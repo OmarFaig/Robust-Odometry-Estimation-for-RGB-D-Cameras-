@@ -5,8 +5,11 @@ set(CMAKE_CXX_STANDARD 14)
 
 
 find_package(Pangolin REQUIRED)
+find_package(OpenCV REQUIRED)
+
 include_directories(
 ${Pangolin_INCLUDE_DIRS}
+${OpenCV_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -17,7 +20,7 @@ visualization.cpp
 
 
 
-target_link_libraries(${PROJECT_NAME} ${Pangolin_LIBRARIES} )
+target_link_libraries(${PROJECT_NAME} ${Pangolin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 add_executable(run main.cpp)
 
