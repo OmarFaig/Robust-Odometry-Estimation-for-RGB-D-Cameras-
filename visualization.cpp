@@ -21,15 +21,15 @@ int sayHello(){
 int TT(/*int argc, char* argv[]*/)
 {  
   // Create OpenGL window in single line
-  pangolin::CreateWindowAndBind("Main",640,480);
+  pangolin::CreateWindowAndBind("RGBD Odometry",1280,960);
   
   // 3D Mouse handler requires depth testing to be enabled
   glEnable(GL_DEPTH_TEST);
 
   // Define Camera Render Object (for view / scene browsing)
   pangolin::OpenGlRenderState s_cam(
-    pangolin::ProjectionMatrix(640,480,420,420,320,240,0.1,1000),
-    pangolin::ModelViewLookAt(-0,0.5,-3, 0,0,0, pangolin::AxisY)
+    pangolin::ProjectionMatrix(640,480,420,420,320,240,0.1,5000),
+    pangolin::ModelViewLookAt(-0,0.5,-9, 0,0,0, pangolin::AxisY)
   );
 
   // Choose a sensible left UI Panel width based on the width of 20
@@ -73,10 +73,10 @@ int TT(/*int argc, char* argv[]*/)
 
   // Default hooks for exiting (Esc) and fullscreen (tab).
   while( !pangolin::ShouldQuit() )
-  {
+  { 
     // Clear entire screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
-
+glClearColor(1.0f, 1.0f, 1.0f, 0.0f);//white background
     if( pangolin::Pushed(a_button) )
       std::cout << "You Pushed a button!" << std::endl;
 
