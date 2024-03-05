@@ -12,16 +12,16 @@
 #include <pangolin/display/default_font.h>
 #include <pangolin/handler/handler.h>
 
-int sayHello(){
+int testSetup(){
     std::cout<<"HELO vis";
     return 1;
 }
 
 
-int TT(/*int argc, char* argv[]*/)
+int visualizer(/*int argc, char* argv[]*/)
 {  
   // Create OpenGL window in single line
-  pangolin::CreateWindowAndBind("RGBD Odometry",640,480);
+  pangolin::CreateWindowAndBind("RGBD Odometry",1280,960);
   
   // 3D Mouse handler requires depth testing to be enabled
   glEnable(GL_DEPTH_TEST);
@@ -39,7 +39,7 @@ int TT(/*int argc, char* argv[]*/)
 
   // Add named OpenGL viewport to window and provide 3D Handler
   pangolin::View& d_cam = pangolin::CreateDisplay()
-    .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), 1.0, 640.0f/480.0f)
+    .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), 1.0, 1280.0f/960.0f)
     .SetHandler(new pangolin::Handler3D(s_cam));
 
   pangolin::View& d_img1 = pangolin::Display("img1")
@@ -58,10 +58,14 @@ int TT(/*int argc, char* argv[]*/)
 cv::Mat image = cv::imread("/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/rgb/1305031127.779346.png");
       cv::flip(image, image, 0);
 
+cv::Mat image2 = cv::imread("/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/depth/305031102.295279.png");
+      cv::flip(image2, image2, 0);
+
 const int width =  image.cols;
 const int height = image.rows;
   ///home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/rgb/1305031102.175304.png
 pangolin::GlTexture imageTexture(width,height,GL_RGB,false,0,GL_RGB,GL_UNSIGNED_BYTE);
+pangolin::GlTexture imageTexture2(width,height,GL_RGB,false,0,GL_RGB,GL_UNSIGNED_BYTE);
 
   // Add named Panel and bind to variables beginning 'ui'
   // A Panel is just a View with a default layout and input handling
@@ -109,8 +113,9 @@ glClearColor(1.0f, 1.0f, 1.0f, 0.0f);//white background
     imageTexture.RenderToViewport();
 
         d_img2.Activate();
-    //glColor4f(1.0f,1.0f,1.0f,1.0f);
-   // imageTexture.RenderToViewport();
+    glColor4f(1.0f,1.0f,1.0f,1.0f);
+         imageTexture2.Upload(image2.data,GL_BGR,GL_UNSIGNED_BYTE); 
+          imageTexture2.RenderToViewport();
 
     // Overloading of Var<T> operators allows us to treat them like
     // their wrapped types, eg:

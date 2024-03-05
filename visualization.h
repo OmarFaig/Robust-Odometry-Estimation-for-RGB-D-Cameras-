@@ -1,4 +1,4 @@
 #include<iostream>
 
-int sayHello();
-int TT();
+int testSetup();
+int visualizer();
