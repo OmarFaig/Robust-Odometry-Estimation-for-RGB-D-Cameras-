@@ -21,25 +21,37 @@ int testSetup(){
 int visualizer(/*int argc, char* argv[]*/)
 {  
   // Create OpenGL window in single line
-  pangolin::CreateWindowAndBind("RGBD Odometry",1280,960);
+  pangolin::CreateWindowAndBind("RGBD Odometry",1000,1000);
   
   // 3D Mouse handler requires depth testing to be enabled
   glEnable(GL_DEPTH_TEST);
-  glEnable (GL_BLEND);
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   // Define Camera Render Object (for view / scene browsing)
   pangolin::OpenGlRenderState s_cam(
     pangolin::ProjectionMatrix(640,480,420,420,320,240,0.1,5000),
     pangolin::ModelViewLookAt(-0,0.5,-9, 0,0,0, pangolin::AxisY)
   );
-
+  // main parent display for images and 3d viewer
+// pangolin::View& main_view =
+//     pangolin::Display("main")
+//         .SetBounds(0.0, 1.0, pangolin::Attach::Pix(200), 1.0)
+//         .SetLayout(pangolin::LayoutEqualVertical);
+//
+// // parent display for images
+// pangolin::View& img_view_display =
+//     pangolin::Display("images").SetLayout(pangolin::LayoutEqual);
+// main_view.AddDisplay(img_view_display);
+//
+// // main ui panel
+// pangolin::CreatePanel("ui").SetBounds(0.0, 1.0, 0.0,
+//                                       pangolin::Attach::Pix(200));
+//
   // Choose a sensible left UI Panel width based on the width of 20
   // charectors from the default font.
   const int UI_WIDTH = 20* pangolin::default_font().MaxWidth();
 
   // Add named OpenGL viewport to window and provide 3D Handler
   pangolin::View& d_cam = pangolin::CreateDisplay()
-    .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), 1.0, 1280.0f/960.0f)
+    .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), 1.0, 1000.0f/1000.0f)
     .SetHandler(new pangolin::Handler3D(s_cam));
 
   pangolin::View& d_img1 = pangolin::Display("img1")
@@ -47,9 +59,10 @@ int visualizer(/*int argc, char* argv[]*/)
 
   pangolin::View& d_img2 = pangolin::Display("img2")
     .SetAspect(640.0f/480.0f);
-     pangolin::Display("multi")
-      .SetBounds(0.0, 1.0, 0.0, 1.0)
-      .SetLayout(pangolin::LayoutEqual)
+  
+  pangolin::Display("multi")
+      .SetBounds(0.0, 1.0, pangolin::Attach::Pix(UI_WIDTH), 1.0)
+      .SetLayout(pangolin::LayoutEqualVertical)
       .AddDisplay(d_img1)
       .AddDisplay(d_img2)
       .AddDisplay(d_cam);
@@ -101,19 +114,22 @@ pangolin::GlTexture imageTexture2(width,height,GL_RGB,false,0,GL_RGB,GL_UNSIGNED
   while( !pangolin::ShouldQuit() )
   { 
     // Clear entire screen
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
-glClearColor(1.0f, 1.0f, 1.0f, 0.0f);//white background
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//glClearColor(1.0f, 1.0f, 1.0f, 0.0f);//white background
+    glLineWidth(1.0);
+    glClearColor(0.95f, 0.95f, 0.95f, 1.0f);  // light gray background
+
     if( pangolin::Pushed(a_button) )
       std::cout << "You Pushed a button!" << std::endl;
 
     d_img1.Activate();
-    glColor4f(1.0f,1.0f,1.0f,1.0f);
+    glClearColor(0.95f, 0.95f, 0.95f, 1.0f);  // light gray background
      imageTexture.Upload(image.data,GL_BGR,GL_UNSIGNED_BYTE); 
 
     imageTexture.RenderToViewport();
 
         d_img2.Activate();
-    glColor4f(1.0f,1.0f,1.0f,1.0f);
+    glClearColor(0.95f, 0.95f, 0.95f, 1.0f);  // light gray background
          imageTexture2.Upload(image2.data,GL_BGR,GL_UNSIGNED_BYTE); 
           imageTexture2.RenderToViewport();
 
