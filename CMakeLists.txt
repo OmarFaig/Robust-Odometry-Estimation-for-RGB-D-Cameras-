@@ -15,6 +15,7 @@ ${OpenCV_INCLUDE_DIRS}
 add_library(${PROJECT_NAME} SHARED
 main.cpp
 visualization.cpp
+dataloader.cpp
 #visualization.h  
 )
 
