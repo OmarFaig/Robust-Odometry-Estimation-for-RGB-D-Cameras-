@@ -19,7 +19,7 @@
 #include <pangolin/pangolin.h>
 
 int testSetup(){
-    std::cout<<"HELO vis";
+  //  std::cout<<"HELO vis";
     return 1;
 }
 
@@ -27,7 +27,7 @@ constexpr int UI_WIDTH = 200;
 
 int visualizer(/*int argc, char* argv[]*/)
 { 
-  bool show_gui = true;
+  bool show_gui = false;
 
   pangolin::Var<bool> continue_next("ui.continue_next", false, false, true);
   using Button = pangolin::Var<std::function<void(void)>>;

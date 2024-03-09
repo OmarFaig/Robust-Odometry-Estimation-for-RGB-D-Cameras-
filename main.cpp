@@ -2,6 +2,7 @@
 #include <pangolin/display/view.h>
 #include <pangolin/handler/handler.h>
 #include <pangolin/gl/gldraw.h>
+
 #include<iostream>
 #include<list>
 
@@ -11,12 +12,12 @@
 #include "dataloader.h"
 int main()
 {
-    std::cout << "cpp version -- "<<__cplusplus;
+    //std::cout << "cpp version -- "<<__cplusplus;
 
    //std::cout<<"HELLO MAIN";
 testSetup();
 visualizer();
-std::string path="/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/rgb/";
+std::string path="/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/";
 load_data(path);
 //using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
