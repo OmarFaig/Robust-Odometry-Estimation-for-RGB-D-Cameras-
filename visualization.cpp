@@ -27,7 +27,7 @@ constexpr int UI_WIDTH = 200;
 
 int visualizer(/*int argc, char* argv[]*/)
 { 
-  bool show_gui = false;
+  bool show_gui = true;
 
   pangolin::Var<bool> continue_next("ui.continue_next", false, false, true);
   using Button = pangolin::Var<std::function<void(void)>>;

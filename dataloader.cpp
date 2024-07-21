@@ -17,7 +17,7 @@ std::cout<<txt_path<<std::endl;
 
 int64_t timestamp;
 int id =0;
-while(file_names || id!=1){
+while(file_names || id!=0){
     std::string line;
     std::getline(file_names,line);
 
@@ -26,6 +26,7 @@ while(file_names || id!=1){
     std::stringstream ss;
     ss << path_to_dataset << "rgb" <<"/" << timestamp << ".png";
         //tt= path_to_dataset+ "/rgb" +"/"+timestamp ;
+    std::cout<<" hh "<<line<<std::endl;
 
     std::cout<<ss.str()<<std::endl;
     id++;

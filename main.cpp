@@ -18,7 +18,7 @@ int main()
 testSetup();
 visualizer();
 std::string path="/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/";
-load_data(path);
+//load_data(path);
 //using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
 //for (const auto& dirEntry : recursive_directory_iterator("/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/rgb/1305031102.175304.png"))
