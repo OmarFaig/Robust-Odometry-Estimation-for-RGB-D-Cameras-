@@ -16,7 +16,7 @@ add_library(${PROJECT_NAME} SHARED
 main.cpp
 visualization.cpp
 dataloader.cpp
-#visualization.h  
+visualization.h  
 )
 
 
