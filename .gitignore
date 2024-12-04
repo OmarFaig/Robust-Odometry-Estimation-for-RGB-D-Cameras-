@@ -34,3 +34,6 @@
 # Data files
 Data/
 build/
+libs/
+Pangolin/
+run
