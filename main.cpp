@@ -8,14 +8,14 @@
 #include <pangolin/var/varextra.h>
 #include <pangolin/display/default_font.h>
 
-
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <filesystem>
 #include <thread>
 #include <chrono>
-#include "dataloader.h"
 
+#include "dataloader.h"
+#include "pointCloud.h"
 int main()
 {
     std::cout << "Starting program..." << std::endl;
@@ -50,105 +50,110 @@ int main()
                                         .SetLock(pangolin::LockRight, pangolin::LockTop);
 
         // Create a panel manually
-        
-        pangolin::View& panel = pangolin::CreatePanel("ui")
-            .SetBounds(0.0f, 1.0f, 0.0f, 0.2f)
-            .SetLayout(pangolin::LayoutVertical);
+
+        pangolin::View &panel = pangolin::CreatePanel("ui")
+                                    .SetBounds(0.0f, 1.0f, 0.0f, 0.2f)
+                                    .SetLayout(pangolin::LayoutVertical);
 
         // Set font size for UI text
-        //pangolin::GlFont::I().TextSize(20);
+        // pangolin::GlFont::I().TextSize(20);
 
         // Create buttons
-        pangolin::Var<bool> btn_next("ui.Next Frame", false, true);
-        pangolin::Var<bool> btn_prev("ui.Previous Frame", false, true);
-        pangolin::Var<bool> btn_reset("ui.Reset", false, true);
-        pangolin::Var<bool> running("ui.Auto Play", false, true);
-        pangolin::Var<int> slider("ui.Frame Slider", 0, 0, 100);
+        pangolin::Var<bool> btn_next("ui.Next Frame", false, false);
+        pangolin::Var<bool> btn_prev("ui.Previous Frame", false, false);
+        pangolin::Var<bool> btn_reset("ui.Reset", false, false);
+        pangolin::Var<bool> running("ui.Auto Play", false, false);
+        // pangolin::Var<int> slider("ui.Frame Slider", 0, 0, 100);
 
         // Initialize data loader
-        DataLoader loader("/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/rgb", 
-                        "/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/depth");
+        DataLoader loader("/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/rgb",
+                          "/home/omar/TUM/Robust-Odometry-Estimation-for-RGB-D-Cameras-/Data/rgbd_dataset_freiburg1_xyz/depth");
 
-        while (!pangolin::ShouldQuit())
-        {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// ... existing code ...
 
-            // Handle button presses
-            if (btn_next)
-            {
-                loader.next();
-                btn_next = false;
-            }
-            if (btn_prev)
-            {
-                loader.previous();
-                btn_prev = false;
-            }
-            if (btn_reset)
-            {
-                loader.reset();
-                btn_reset = false;
-            }
+// Inside your main while loop:
+while (!pangolin::ShouldQuit())
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            // Update slider value based on current index
-            slider = loader.getCurrentIndex();
+    // Get current images regardless of auto-play state
+    cv::Mat rgb_img = loader.getCurrentRGB();
+    cv::Mat depth_img = loader.getCurrentDepth();
 
-            // Update current index based on slider value
-            if (slider != loader.getCurrentIndex()) {
-                loader.setCurrentIndex(slider);
-            }
+    // Handle button presses
+    if (pangolin::Var<bool>("ui.Next Frame").GuiChanged()) {
+        loader.next();
+    }
+    if (pangolin::Var<bool>("ui.Previous Frame").GuiChanged()) {
+        loader.previous();
+    }
+    if (pangolin::Var<bool>("ui.Reset").GuiChanged()) {
+        loader.reset();
+    }
 
-            // Auto-advance if running
-            if (running && loader.hasNext())
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                loader.next();
-            }
+    // Auto-advance if running
+    if (running && loader.hasNext())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        loader.next();
+    }
 
-            // Get current images
-            cv::Mat rgb_img = loader.getCurrentRGB();
-            cv::Mat depth_img = loader.getCurrentDepth();
+    if (!rgb_img.empty() && !depth_img.empty())
+    {
+        // Convert depth image to float
+        cv::Mat depth_float;
+        depth_img.convertTo(depth_float, CV_32F);
 
-            if (!rgb_img.empty() && !depth_img.empty())
-            {
-                // Rotate images by 180 degrees
-                cv::rotate(rgb_img, rgb_img, cv::ROTATE_180);
-                cv::rotate(depth_img, depth_img, cv::ROTATE_180);
+        // Generate point cloud
+        std::vector<Point3D> point_cloud = depthToPointCloud(depth_float, rgb_img);
 
-                // Convert images to RGB
-                cv::cvtColor(rgb_img, rgb_img, cv::COLOR_BGR2RGB);
+        // Rotate images by 180 degrees
+        cv::rotate(rgb_img, rgb_img, cv::ROTATE_180);
+        cv::rotate(depth_img, depth_img, cv::ROTATE_180);
 
-                // Create textures
-                pangolin::GlTexture tex1(rgb_img.cols, rgb_img.rows, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
-                pangolin::GlTexture tex2(depth_img.cols, depth_img.rows, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
+        // Convert images to RGB
+        cv::cvtColor(rgb_img, rgb_img, cv::COLOR_BGR2RGB);
 
-                // Render first image
-                img_view1.Activate();
-                glColor3f(1.0f, 1.0f, 1.0f);
-                tex1.Upload(rgb_img.data, GL_RGB, GL_UNSIGNED_BYTE);
-                tex1.RenderToViewport();
+        // Create textures
+        pangolin::GlTexture tex1(rgb_img.cols, rgb_img.rows, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
+        pangolin::GlTexture tex2(depth_img.cols, depth_img.rows, GL_RGB, false, 0, GL_RGB, GL_UNSIGNED_BYTE);
 
-                // Render second image
-                img_view2.Activate();
-                glColor3f(1.0f, 1.0f, 1.0f);
-                tex2.Upload(depth_img.data, GL_RGB, GL_UNSIGNED_BYTE);
-                tex2.RenderToViewport();
+        // Render first image
+        img_view1.Activate();
+        glColor3f(1.0f, 1.0f, 1.0f);
+        tex1.Upload(rgb_img.data, GL_RGB, GL_UNSIGNED_BYTE);
+        tex1.RenderToViewport();
 
-                // Render 3D view
-                d_cam.Activate(s_cam);
+        // Render second image
+        img_view2.Activate();
+        glColor3f(1.0f, 1.0f, 1.0f);
+        tex2.Upload(depth_img.data, GL_RGB, GL_UNSIGNED_BYTE);
+        tex2.RenderToViewport();
 
-                // Draw coordinate frame
-                glLineWidth(3);
-                pangolin::glDrawAxis(3.0f);
+        // Render 3D view
+        d_cam.Activate(s_cam);
 
-                // Draw grid in x-z plane with darker color for visibility on white background
-                glLineWidth(1);
-                glColor3f(0.3f, 0.3f, 0.3f); // Darker grey for better visibility
-                pangolin::glDraw_z0(2.0f, 20);
-            }
+        // Draw coordinate frame
+        glLineWidth(3);
+        pangolin::glDrawAxis(3.0f);
 
-            pangolin::FinishFrame();
+        // Draw grid in x-z plane
+        glLineWidth(1);
+        glColor3f(0.3f, 0.3f, 0.3f);
+        pangolin::glDraw_z0(2.0f, 20);
+
+        // Draw point cloud
+        glPointSize(2.0f);
+        glBegin(GL_POINTS);
+        for (const auto& point : point_cloud) {
+            glColor3ub(point.color[2], point.color[1], point.color[0]); // BGR to RGB
+            glVertex3f(point.position[0], point.position[1], point.position[2]);
         }
+        glEnd();
+    }
+
+    pangolin::FinishFrame();
+}
 
         pangolin::DestroyWindow("RGBD SLAM");
     }

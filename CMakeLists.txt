@@ -20,11 +20,13 @@ include_directories(
 set(SOURCES
     main.cpp
     dataloader.cpp
+    pointCloud.cpp
 )
 
 # List your header files
 set(HEADERS
     dataloader.h
+    pointCloud.h
 )
 
 # Create the library
